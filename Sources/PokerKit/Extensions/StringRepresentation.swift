@@ -35,6 +35,7 @@ extension Rank : StringRepresentation {
 extension Suit : StringRepresentation {
     fileprivate static let All = ["spades", "hearts", "diamonds", "clubs"]
     public static func from(_ input: String) -> Suit? {
+        guard !input.isEmpty else { return nil }
         let index = Suit.All.firstIndex { $0.hasPrefix(input) }
         return index ~> { Suit(rawValue: $0) }
     }
