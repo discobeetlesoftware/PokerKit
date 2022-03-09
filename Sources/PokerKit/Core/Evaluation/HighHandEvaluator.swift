@@ -32,7 +32,7 @@ open class HighHandEvaluator : HandEvaluator {
     typealias StraightAnalysis = [Hand]
     func analyzeSequences(_ hand: Hand) -> StraightAnalysis {
         let matchingSequences = hand.allCardsBySequence
-        let straights:StraightAnalysis = matchingSequences.values.flatMap {
+        let straights:StraightAnalysis = matchingSequences.values.compactMap {
             if $0.count == hand.schema.cardCount {
                 return $0
             } else {
@@ -46,7 +46,7 @@ open class HighHandEvaluator : HandEvaluator {
     typealias SuitAnalysis = [Hand]
     func analyzeSuits(_ hand: Hand) -> SuitAnalysis {
         let matchingSuits = hand.allCardsBySuit
-        let flushes:SuitAnalysis = matchingSuits.values.flatMap {
+        let flushes:SuitAnalysis = matchingSuits.values.compactMap {
             return $0.count == hand.schema.cardCount ? $0 : nil
         }
         return flushes
@@ -66,7 +66,9 @@ open class HighHandEvaluator : HandEvaluator {
         func appendResult(_ rank: HandRank, _ resultHand: Hand?) {
             let primary = resultHand ?? hand
             let kickerCount = max(0, hand.schema.cardCount - primary.count)
-            let kickers:Hand? = nil//$.difference(hand.allCards, primary.allCards).prefix(kickerCount)
+            var cards = hand.allCards
+            cards.removeAll(where: { primary.allCards.contains($0) })
+            let kickers: Hand? = Hand(Array(cards.prefix(kickerCount)))
             let result = HandEvaluationResult(rank: rank, primary: primary, kickers: kickers)
             results.append(result)
         }

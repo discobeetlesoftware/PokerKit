@@ -15,16 +15,16 @@ extension StringRepresentation {
     }
 
     public static func listFrom(_ input: String) -> [Self] {
-        return representations(input).flatMap { Self.from($0) }
+        return representations(input).compactMap { Self.from($0) }
     }
 }
 
 extension Rank : StringRepresentation {
     fileprivate static let All = "--23456789tjqka"
     public static func from(_ input: String) -> Rank? {
-        guard input.characters.count == 1 else { return nil }
+        guard input.count == 1 else { return nil }
         if let range = Rank.All.range(of: input) {
-            let rawValue = Rank.All.characters.distance(from: Rank.All.startIndex, to: range.lowerBound)
+            let rawValue = Rank.All.distance(from: Rank.All.startIndex, to: range.lowerBound)
             return Rank(rawValue: rawValue)
         } else {
             return nil
@@ -35,16 +35,16 @@ extension Rank : StringRepresentation {
 extension Suit : StringRepresentation {
     fileprivate static let All = ["spades", "hearts", "diamonds", "clubs"]
     public static func from(_ input: String) -> Suit? {
-        let index = Suit.All.index { $0.hasPrefix(input) }
+        let index = Suit.All.firstIndex { $0.hasPrefix(input) }
         return index ~> { Suit(rawValue: $0) }
     }
 }
 
 extension PlayingCard : StringRepresentation {
     public static func from(_ input: String) -> PlayingCard? {
-        guard input.characters.count > 1 else { return nil }
-        let rankToken = input.substring(to: input.characters.index(input.startIndex, offsetBy: 1))
-        let suitToken = input.substring(from: input.characters.index(input.startIndex, offsetBy: 1))
+        guard input.count > 1 else { return nil }
+        let rankToken = String(input.first!)
+        let suitToken = String(input.last!)
         if let rank = Rank.from(rankToken),
             let suit = Suit.from(suitToken) {
             return PlayingCard(rank: rank, suit: suit)

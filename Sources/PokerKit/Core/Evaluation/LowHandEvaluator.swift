@@ -12,7 +12,7 @@ open class LowHandEvaluator : HandEvaluator {
     open func isHighHandInvalidated(_ cards:[PlayingCard]) -> Bool {
         guard let invalidRanks = Hand().schema.invalidHandRanks else { return false }
         let high = HighHandEvaluator()
-        let hands = high.evaluateHand(Hand(cards.flatMap({ $0 })))
+        let hands = high.evaluateHand(Hand(cards.compactMap({ $0 })))
         if hands == [ HandEvaluationResult(rank: HandRank.highCard, primary: nil, kickers: nil) ] {
             return false
         }
@@ -21,7 +21,7 @@ open class LowHandEvaluator : HandEvaluator {
     }
 
     func getCards(_ hand: Hand) -> [PlayingCard] {
-        let cards = hand.allCards.flatMap({ $0 }).sorted(by: <)
+        let cards = hand.allCards.compactMap({ $0 }).sorted(by: <)
 
         let lastRank = cards.last?.rank
         let initial: [PlayingCard]

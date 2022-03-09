@@ -15,7 +15,7 @@ protocol EmojiDescription {
 extension Rank : EmojiDescription {
     var emojiDescription: String {
         let list = "--2⃣️3⃣️4⃣️5⃣️6⃣️7⃣️8⃣️9⃣️🔟ⒿⓆⓀⒶ"
-        let char = list[list.characters.index(list.startIndex, offsetBy: rawValue)]
+        let char = list[list.index(list.startIndex, offsetBy: rawValue)]
         return String(char)
     }
 }
@@ -33,7 +33,7 @@ extension Suit : EmojiDescription {
 
 extension String {
     func substring(_ n:Int) -> String {
-        let char = self[self.characters.index(self.startIndex, offsetBy: n)]
+        let char = self[self.index(self.startIndex, offsetBy: n)]
         return String(char)
     }
 }
