@@ -3,13 +3,13 @@
 //
 
 public struct HandEvaluationResult {
-    public var rank:HandRank?
-    public var primary:Hand?
-    public var kickers:Hand?
+    public var rank: HandRank?
+    public var primary: Hand?
+    public var kickers: Hand?
 }
 
 extension HandEvaluationResult {
-    static fileprivate func newMatchingAny(_ rank:HandRank) -> HandEvaluationResult {
+    static fileprivate func newMatchingAny(_ rank: HandRank) -> HandEvaluationResult {
         return HandEvaluationResult(rank: rank, primary: nil, kickers: nil)
     }
     static let invalid = HandEvaluationResult.newMatchingAny(.invalid)

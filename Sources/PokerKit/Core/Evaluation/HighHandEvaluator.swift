@@ -6,7 +6,7 @@
 
 open class HighHandEvaluator : HandEvaluator {
 
-    typealias RankAnalysis = (quads: [Hand], trips:[Hand], pairs:[Hand])
+    typealias RankAnalysis = (quads: [Hand], trips: [Hand], pairs: [Hand])
 
     func analyzeRanks(_ hand: Hand) -> RankAnalysis {
         let matchingRanks = hand.allCardsByRank
