@@ -6,7 +6,33 @@ public struct HandEvaluationResult {
     public var rank: HandRank?
     public var primary: Hand?
     public var kickers: Hand?
+    
+    public init(rank: HandRank? = nil, primary: Hand? = nil, kickers: Hand? = nil) {
+        self.rank = rank
+        self.primary = primary
+        self.kickers = kickers
+    }
+    
+    public init(rank: HandRank, hand: HandEvaluationModel, rankHand: Hand?, hasKickers: Bool = true) {
+        let primary = rankHand ?? hand.allCards
+        if hasKickers {
+            let kickerCount = max(0, hand.configuration.cardCount - primary.count)
+            let kickers = hand.allCards - primary
+            let offset = kickers.count - kickerCount
+            
+            if offset >= 0 {
+                self.kickers = Array(kickers.dropFirst(kickers.count - kickerCount))
+            } else {
+                self.kickers = nil
+            }
+        } else {
+            self.kickers = nil
+        }
+        self.rank = rank
+        self.primary = primary
+    }
 }
+
 
 extension HandEvaluationResult {
     static fileprivate func newMatchingAny(_ rank: HandRank) -> HandEvaluationResult {
@@ -26,7 +52,7 @@ extension HandEvaluationResult {
     static let fiveOfKind = HandEvaluationResult.newMatchingAny(.fiveOfKind)
 }
 
-extension HandEvaluationResult : Equatable {}
+extension HandEvaluationResult: Equatable {}
 
 public func ==(lhs: HandEvaluationResult, rhs: HandEvaluationResult) -> Bool {
     let (lRank, rRank) = (lhs.rank, rhs.rank)
@@ -42,37 +68,34 @@ public func ==(lhs: HandEvaluationResult, rhs: HandEvaluationResult) -> Bool {
     return lKickers! == rKickers!
 }
 
-extension HandEvaluationResult : Comparable {}
+extension HandEvaluationResult: Comparable {}
 
 public func <(lhs: HandEvaluationResult, rhs: HandEvaluationResult) -> Bool {
-    let ltRank = lessThanWild(lhs.rank, rhs.rank)
-    if ltRank.hasResult { return ltRank.result }
+    if let ltRank = lessThanWild(lhs.rank, rhs.rank) { return ltRank }
     let (lRank, rRank) = (lhs.rank!, rhs.rank!)
     if lRank != rRank { return lRank < rRank }
 
-    let ltPrimary = lessThanWild(lhs.primary, rhs.primary)
-    if ltPrimary.hasResult { return ltPrimary.result }
+    if let ltPrimary = lessThanWild(lhs.primary, rhs.primary) { return ltPrimary }
     let (lPrimary, rPrimary) = (lhs.primary!, rhs.primary!)
     if lPrimary != rPrimary { return lPrimary < rPrimary }
 
-    let ltKicker = lessThanWild(lhs.kickers, rhs.kickers)
-    if ltKicker.hasResult { return ltKicker.result }
+    if let ltKicker = lessThanWild(lhs.kickers, rhs.kickers) { return ltKicker }
     return lhs.kickers! < rhs.kickers!
 }
 
-extension HandEvaluationResult : CustomStringConvertible {
+extension HandEvaluationResult: CustomStringConvertible {
     public var description: String {
         guard let rank = rank else { return "wild" }
 
         var output = rank.description
 
         if let primary = primary {
-            let cardString = primary.allCards.prettyDescription()
+            let cardString = primary.prettyDescription()
             output += " (\(cardString))"
         }
 
         if let kickers = kickers {
-            let kickerString = kickers.allCards.prettyDescription(ascending:false)
+            let kickerString = kickers.prettyDescription()
             output += " \(kickerString)"
         }
         

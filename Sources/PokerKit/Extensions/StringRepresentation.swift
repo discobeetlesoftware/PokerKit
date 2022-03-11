@@ -4,60 +4,95 @@
 
 import Foundation
 
-public protocol StringRepresentation : CustomStringConvertible {
-    static func from(_ input: String) -> Self?
-    static func listFrom(_ input: String) -> [Self]
-}
-
-extension StringRepresentation {
-    static func representations(_ input: String) -> [String] {
-        return input.lowercased().components(separatedBy: " ")
-    }
-
-    public static func listFrom(_ input: String) -> [Self] {
-        return representations(input).compactMap { Self.from($0) }
-    }
-}
-
-extension Rank : StringRepresentation {
-    fileprivate static let All = "--23456789tjqka"
-    public static func from(_ input: String) -> Rank? {
-        guard input.count == 1 else { return nil }
-        if let range = Rank.All.range(of: input) {
-            let rawValue = Rank.All.distance(from: Rank.All.startIndex, to: range.lowerBound)
-            return Rank(rawValue: rawValue)
-        } else {
-            return nil
+extension Suit: ExpressibleByStringLiteral {
+    public typealias StringLiteralType = String
+    
+    public init(stringLiteral value: String) {
+        let lowercaseValue = value.lowercased()
+        switch lowercaseValue {
+        case "s": self = .spades
+        case "h": self = .hearts
+        case "d": self = .diamonds
+        case "c": self = .clubs
+        default: self = .invalid
         }
     }
-}
-
-extension Suit : StringRepresentation {
-    fileprivate static let All = ["spades", "hearts", "diamonds", "clubs"]
-    public static func from(_ input: String) -> Suit? {
-        guard !input.isEmpty else { return nil }
-        let index = Suit.All.firstIndex { $0.hasPrefix(input) }
-        return index ~> { Suit(rawValue: $0) }
+    
+    public init(extendedGraphemeClusterLiteral value: String) {
+        self.init(stringLiteral: value)
+    }
+    
+    public init(unicodeScalarLiteral value: String) {
+        self.init(stringLiteral: value)
     }
 }
 
-extension PlayingCard : StringRepresentation {
-    public static func from(_ input: String) -> PlayingCard? {
-        guard input.count > 1 else { return nil }
-        let rankToken = String(input.first!)
-        let suitToken = String(input.last!)
-        if let rank = Rank.from(rankToken),
-            let suit = Suit.from(suitToken) {
-            return PlayingCard(rank: rank, suit: suit)
-        } else {
-            return nil
+extension Rank: ExpressibleByStringLiteral {
+    public typealias StringLiteralType = String
+    
+    public init(stringLiteral value: String) {
+        let lowercaseValue = value.lowercased()
+        switch lowercaseValue {
+        case "1": self = .aceLow
+        case "2": self = .two
+        case "3": self = .three
+        case "4": self = .four
+        case "5": self = .five
+        case "6": self = .six
+        case "7": self = .seven
+        case "8": self = .eight
+        case "9": self = .nine
+        case "t": self = .ten
+        case "j": self = .jack
+        case "q": self = .queen
+        case "k": self = .king
+        case "a": self = .ace
+        default: self = .invalid
         }
     }
+    
+    public init(extendedGraphemeClusterLiteral value: String) {
+        self.init(stringLiteral: value)
+    }
+    
+    public init(unicodeScalarLiteral value: String) {
+        self.init(stringLiteral: value)
+    }
 }
 
-extension Hand : StringRepresentation {
-    public static func from(_ input: String) -> Hand? {
-        let cards = PlayingCard.listFrom(input)
-        return Hand(cards)
+extension PlayingCard: ExpressibleByStringLiteral {
+    public typealias StringLiteralType = String
+    
+    static public func hand(_ value: String) -> [PlayingCard] {
+        var result = [PlayingCard]()
+        var literal = ""
+        value.forEach { char in
+            if (char != " ") {
+                literal.append(char)
+                if literal.count == 2 {
+                    result.append(PlayingCard(stringLiteral: literal))
+                    literal = ""
+                }
+            }
+        }
+        return result
+    }
+    
+    public init(stringLiteral value: String) {
+        if value.count == 2 {
+            let rank: Rank = Rank(stringLiteral: String(value.first!))
+            let suit: Suit = Suit(stringLiteral: String(value.last!))
+            self = PlayingCard(rank: rank, suit: suit)
+        } else {
+            self = PlayingCard(rank: Rank.invalid, suit: Suit.invalid)
+        }
+    }
+    
+    public init(extendedGraphemeClusterLiteral value: String) {
+        self.init(stringLiteral: value)
+    }
+    
+    public init(unicodeScalarLiteral value: String) {
+        self.init(stringLiteral: value)
     }
 }

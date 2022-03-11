@@ -3,7 +3,7 @@
 //
 
 public enum HandRank: Int {
-    case invalid, low
+    case invalid, low, badugi
     case highCard, pair, twoPair, threeOfKind
     case straight, flush, fullHouse, fourOfKind, straightFlush, fiveOfKind
 
@@ -18,11 +18,13 @@ public enum HandRank: Int {
     }
 }
 
+
 extension HandRank: Equatable {}
 
 public func ==(lhs: HandRank, rhs: HandRank) -> Bool {
     return lhs.rawValue == rhs.rawValue
 }
+
 
 extension HandRank: Comparable {}
 
@@ -30,11 +32,13 @@ public func <(lhs: HandRank, rhs: HandRank) -> Bool {
     return lhs.rawValue < rhs.rawValue
 }
 
+
 extension HandRank: CustomStringConvertible {
     public var description: String {
         switch(self) {
         case .invalid: return "invalid"
         case .low: return "low"
+        case .badugi: return "badugi"
         case .highCard: return "high"
         case .pair: return "pair"
         case .twoPair: return "two pair"

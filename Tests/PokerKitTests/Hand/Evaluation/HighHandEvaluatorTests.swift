@@ -6,13 +6,13 @@ import XCTest
 @testable import PokerKit
 
 class HighHandEvaluatorTests: XCTestCase {
+    let evaluator = HighHandEvaluator(configuration: DefaultConfiguration())
+    
     func testThings() {
+        let hand = PlayingCard.hand("ac 2c 3c 4c 5c")
 
-        let hand = Hand.from("ac 2c 3c 4c 5c")!
+        let hand2 = PlayingCard.hand("jh jc jd qs qC")
 
-        let hand2 = Hand.from("jh jc jd qs qC")!
-
-        let evaluator = HighHandEvaluator()
         var expected: [HandEvaluationResult]
 
         expected = [HandEvaluationResult(rank: .straightFlush, primary: nil, kickers: hand),
@@ -20,10 +20,17 @@ class HighHandEvaluatorTests: XCTestCase {
         var results = evaluator.evaluateHands([hand, hand2])
         XCTAssertEqual(results, expected)
         
-        let hand3 = Hand.from("ac ts td 9c kh")!
+        let hand3 = PlayingCard.hand("ac ts td 9c kh")
         expected = [ HandEvaluationResult(rank: .pair, primary: nil, kickers: hand3)]
         results = evaluator.evaluateHands([hand3])
         XCTAssertEqual(results, expected)
     }
 
+    
+    func testWheel() {
+        let wheel = PlayingCard.hand("ac 2c 3s 4c 5c")
+        let results = evaluator.evaluateHand(wheel)
+        let expected = HandEvaluationResult(rank: .straight, primary: wheel, kickers: nil)
+        XCTAssertEqual(results.first, expected)
+    }
 }

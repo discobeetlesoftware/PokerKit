@@ -12,42 +12,56 @@ protocol EmojiDescription {
     var emojiDescription: String { get }
 }
 
-extension Rank : EmojiDescription {
+extension Rank: EmojiDescription {
     var emojiDescription: String {
-        let list = "--2⃣️3⃣️4⃣️5⃣️6⃣️7⃣️8⃣️9⃣️🔟ⒿⓆⓀⒶ"
-        let char = list[list.index(list.startIndex, offsetBy: rawValue)]
-        return String(char)
+        switch self {
+        case .ace: return "Ⓐ"
+        case .king: return "Ⓚ"
+        case .queen: return "Ⓠ"
+        case .jack: return "Ⓙ"
+        case .ten: return "🔟"
+        case .nine: return "9⃣️"
+        case .eight: return "8⃣️"
+        case .seven: return "7⃣️"
+        case .six: return "6⃣️"
+        case .five: return "5⃣️"
+        case .four: return "4⃣️"
+        case .three: return "3⃣️"
+        case .two: return "2⃣️"
+        case .aceLow: return "Ⓐ"
+        case .invalid: return "🚫"
+        }
     }
 }
 
-extension Suit : EmojiDescription {
+extension Suit: EmojiDescription {
     var emojiDescription: String {
         switch self {
         case .spades: return "♠️"
         case .hearts: return "♥️"
         case .diamonds: return "♦️"
         case .clubs: return "♣️"
+        case .invalid: return "🚫"
         }
     }
 }
 
-extension String {
-    func substring(_ n:Int) -> String {
-        let char = self[self.index(self.startIndex, offsetBy: n)]
-        return String(char)
+extension PlayingCard: UnicodeDescription {
+    fileprivate func unicodeCards() -> String {
+        switch suit {
+        case .spades: return "🂡🂢🂣🂤🂥🂦🂧🂨🂩🂪🂫🂭🂮🂡"
+        case .hearts: return "🂱🂲🂳🂴🂵🂶🂷🂸🂹🂺🂻🂽🂾🂱"
+        case .diamonds: return "🃁🃂🃃🃄🃅🃆🃇🃈🃉🃊🃋🃍🃎🃁"
+        case .clubs: return "🃑🃒🃓🃔🃕🃖🃗🃘🃙🃚🃛🃝🃞🃑"
+        case .invalid: return ""
+        }
     }
-}
-
-extension PlayingCard : UnicodeDescription {
-    static let unicodes:[String] = {
-        return [
-            "🂡🂢🂣🂤🂥🂦🂧🂨🂩🂪🂫🂭🂮",
-            "🂱🂲🂳🂴🂵🂶🂷🂸🂹🂺🂻🂽🂾",
-            "🃁🃂🃃🃄🃅🃆🃇🃈🃉🃊🃋🃍🃎",
-            "🃑🃒🃓🃔🃕🃖🃗🃘🃙🃚🃛🃝🃞"
-        ]
-    }()
+    
     var unicodeDescription: String {
-        return PlayingCard.unicodes[suit.rawValue].substring(rank.rawValue)
+        let cards = unicodeCards()
+        let index = cards.index(cards.startIndex, offsetBy: rank.rawValue - 1)
+        let close = cards.index(after: index)
+        let range = index..<close
+        return String(cards[range])
     }
 }

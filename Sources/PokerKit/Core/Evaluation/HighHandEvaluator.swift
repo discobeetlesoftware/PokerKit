@@ -2,120 +2,44 @@
 //  Created on 7/28/16.
 //
 
-//import Dollar
-
-open class HighHandEvaluator : HandEvaluator {
-
-    typealias RankAnalysis = (quads: [Hand], trips: [Hand], pairs: [Hand])
-
-    func analyzeRanks(_ hand: Hand) -> RankAnalysis {
-        let matchingRanks = hand.allCardsByRank
-
-        let ranks = matchingRanks.keys.sorted { $0 > $1 }
-        var results = RankAnalysis([Hand](), [Hand](), [Hand]())
-        for rank in ranks {
-            let hand = matchingRanks[rank]!
-            switch hand.count {
-            case 2:
-                results.pairs.append(hand)
-            case 3:
-                results.trips.append(hand)
-            case 4:
-                results.quads.append(hand)
-            default:
-                break
-            }
-        }
-        return results
+public class HighHandEvaluator: HandEvaluator {
+    let configuration: HandEvaluatorConfiguration
+    
+    public required init(configuration: HandEvaluatorConfiguration) {
+        self.configuration = configuration
     }
-
-    typealias StraightAnalysis = [Hand]
-    func analyzeSequences(_ hand: Hand) -> StraightAnalysis {
-        let matchingSequences = hand.allCardsBySequence
-        let straights:StraightAnalysis = matchingSequences.values.compactMap {
-            if $0.count == hand.schema.cardCount {
-                return $0
-            } else {
-                return nil
-            }
-
-        }
-        return straights
+    
+    public func evaluate(_ cards: Hand) -> HandEvaluationResult {
+        let model = HandEvaluationModel(withCards: cards)
+        var analysis = HighHandAnalysis(model)
+        if let result = analysis.fiveOfAKindResult() { return result }
+        if let result = analysis.straightFlushResult() { return result }
+        if let result = analysis.fourOfAKindResult() { return result }
+        if let result = analysis.fullHouseResult() { return result }
+        if let result = analysis.flushResult() { return result }
+        if let result = analysis.straightResult() { return result }
+        if let result = analysis.threeOfAKindResult() { return result }
+        if let result = analysis.twoPairResult() { return result }
+        if let result = analysis.pairResult() { return result }
+        
+        return analysis.highCardResult()
     }
-
-    typealias SuitAnalysis = [Hand]
-    func analyzeSuits(_ hand: Hand) -> SuitAnalysis {
-        let matchingSuits = hand.allCardsBySuit
-        let flushes:SuitAnalysis = matchingSuits.values.compactMap {
-            return $0.count == hand.schema.cardCount ? $0 : nil
-        }
-        return flushes
-    }
-
+    
     open func evaluateHand(_ hand: Hand) -> [HandEvaluationResult] {
-        let (quads, trips, pairs) = analyzeRanks(hand)
-        let (hasQuads, hasTrips, hasPairs) = (quads.count > 0, trips.count > 0, pairs.count > 0)
-
-        let straights = analyzeSequences(hand)
-        let hasStraight = straights.last != nil
-
-        let flushes = analyzeSuits(hand)
-        let hasFlush = flushes.last != nil
-
+        let model = HandEvaluationModel(withCards: hand)
+        var analysis = HighHandAnalysis(model)
         var results: [HandEvaluationResult] = []
-        func appendResult(_ rank: HandRank, _ resultHand: Hand?) {
-            let primary = resultHand ?? hand
-            let kickerCount = max(0, hand.schema.cardCount - primary.count)
-            var cards = hand.allCards
-            cards.removeAll(where: { primary.allCards.contains($0) })
-            let kickers: Hand? = Hand(Array(cards.prefix(kickerCount)))
-            let result = HandEvaluationResult(rank: rank, primary: primary, kickers: kickers)
-            results.append(result)
-        }
-
-        if hasStraight && hasFlush {
-            appendResult(HandRank.straightFlush, flushes.first)//not correct sometimes
-        }
-
-        if hasQuads {
-            appendResult(HandRank.fourOfKind, quads.first)
-        }
-
-        if hasTrips && hasPairs {
-            appendResult(HandRank.fullHouse, trips.first! + pairs.first!)
-        }
-
-        if hasFlush {
-            appendResult(HandRank.flush, flushes.first)
-        }
-
-        if hasStraight {
-            appendResult(HandRank.straight, straights.first)
-        }
-
-        if hasTrips {
-            appendResult(HandRank.threeOfKind, trips.first)
-        }
-
-        if hasPairs && pairs.count > 1 {
-            appendResult(HandRank.twoPair, pairs.first! + pairs.last!)
-        }
-
-        if hasPairs {
-            appendResult(HandRank.pair, pairs.first)
-        }
-
+        if let result = analysis.fiveOfAKindResult() { results.append(result) }
+        if let result = analysis.straightFlushResult() { results.append(result) }
+        if let result = analysis.fourOfAKindResult() { results.append(result) }
+        if let result = analysis.fullHouseResult() { results.append(result) }
+        if let result = analysis.flushResult() { results.append(result) }
+        if let result = analysis.straightResult() { results.append(result) }
+        if let result = analysis.threeOfAKindResult() { results.append(result) }
+        if let result = analysis.twoPairResult() { results.append(result) }
+        if let result = analysis.pairResult() { results.append(result) }
+        
+        results.append(analysis.highCardResult())
         return results
-    }
-
-    open func evaluateHands(_ hands: [Hand]) -> [HandEvaluationResult] {
-        return hands.map({ hand in
-            let matchingHands = evaluateHand(hand)
-            if let bestHand = matchingHands.first {
-                return bestHand
-            } else {
-                return HandEvaluationResult(rank: HandRank.highCard, primary: hand, kickers: nil)
-            }
-        })
     }
 }

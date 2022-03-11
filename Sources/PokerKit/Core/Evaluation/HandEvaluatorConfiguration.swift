@@ -2,13 +2,13 @@
 //  Created on 7/28/16.
 //
 
-public protocol HandEvaluatorSchema {
+public protocol HandEvaluatorConfiguration {
     // Number of decks being used
     var decksCount: Int { get }
-
-    // Number of cards to qualify for low hand
+    
+    // Number of cards in the hand
     var cardCount: Int { get }
-
+    
     // The highest card which can participate in a low hand
     var qualifyingRank: Rank { get set }
 
@@ -19,10 +19,13 @@ public protocol HandEvaluatorSchema {
     var invalidHandRanks: [HandRank]? { get set }
 }
 
-public struct DefaultSchema : HandEvaluatorSchema {
+public struct DefaultConfiguration: HandEvaluatorConfiguration {
     public var decksCount = 1
     public var cardCount = 5
     public var qualifyingRank = Rank.ace
     public var isAceLow = true
-    public var invalidHandRanks:[HandRank]? = [ HandRank.pair ]
+    public var invalidHandRanks: [HandRank]? = [ HandRank.pair ]
+    
+    public init() {
+    }
 }

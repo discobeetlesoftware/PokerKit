@@ -4,20 +4,6 @@
 
 import Foundation
 
-public typealias Collection = Swift.Collection
-
-public extension MutableCollection where Index == Int {
-    mutating func shuffle2() {
-        guard count > 1 else { return }
-
-        for i in 0..<count - 1 {
-            let j = random(count - i) + i
-            guard i != j else { continue }
-            swapAt(i, j)
-        }
-    }
-}
-
 public extension Collection where Index == Int {
     func wrap(_ n: Int) -> Int {
         if count == 0 {

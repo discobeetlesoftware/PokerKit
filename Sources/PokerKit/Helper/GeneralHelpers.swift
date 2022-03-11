@@ -21,10 +21,3 @@ public struct Global {
         return ptr!
     }
 }
-//
-//public func lazyInit<T>(_ ptr: inout T?, _ callback: (() -> T)) -> T {
-//    if ptr == nil {
-//        ptr = callback()
-//    }
-//    return ptr!
-//}

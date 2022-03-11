@@ -2,17 +2,21 @@
 //  Created on 7/28/16.
 //
 
-public struct PlayingCard {
-    let rank: Rank
-    let suit: Suit
+public struct PlayingCard: Hashable {
+    public let rank: Rank
+    public let suit: Suit
 
     public init(rank: Rank, suit: Suit) {
         self.rank = rank
         self.suit = suit
     }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(rank)
+        hasher.combine(suit)
+    }
 }
 
-// MARK: - Equatable
 
 extension PlayingCard: Equatable {}
 
@@ -20,7 +24,6 @@ public func ==(lhs: PlayingCard, rhs: PlayingCard) -> Bool {
     return lhs.rank == rhs.rank && lhs.suit == rhs.suit
 }
 
-// MARK: - Comparable
 
 extension PlayingCard: Comparable {}
 
@@ -28,10 +31,9 @@ public func <(lhs: PlayingCard, rhs: PlayingCard) -> Bool {
     return lhs.rank == rhs.rank ? lhs.suit < rhs.suit : lhs.rank < rhs.rank
 }
 
-// MARK: - CustomStringConvertible
 
 extension PlayingCard: CustomStringConvertible {
     public var description: String {
-        return "\(suit)\(rank)"
+        return "\(rank)\(suit)"
     }
 }

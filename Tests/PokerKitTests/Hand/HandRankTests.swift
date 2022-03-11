@@ -6,29 +6,39 @@ import XCTest
 @testable import PokerKit
 
 class HandRankTests: XCTestCase {
-    func testStaticAll() {
-        let list = HandRank.all()
-        XCTAssertEqual(list.count, 12)
-        XCTAssertEqual(list.sorted(), list)
+    func testValue() {
+        let values = HandRank.all().map { $0.rawValue }
+        let expected = Array(stride(from: 0, through: 12, by: 1))
+        XCTAssertEqual(values, expected)
     }
-
-    func testEquatble() {
-        XCTAssertEqual(HandRank.invalid, HandRank.invalid)
-        XCTAssertEqual(HandRank.all(), HandRank.all())
-        XCTAssertNotEqual(HandRank.straight, HandRank.straightFlush)
+    
+    func testAll() {
+        let allRanks = HandRank.all()
+        XCTAssertEqual(allRanks.count, 13)
     }
-
+    
+    func testEquatable() {
+        XCTAssertEqual(HandRank.low, HandRank.low)
+        XCTAssertEqual(HandRank.twoPair, HandRank.twoPair)
+        XCTAssertEqual(HandRank.straight, HandRank.straight)
+        XCTAssertEqual(HandRank.straightFlush, HandRank.straightFlush)
+        XCTAssertNotEqual(HandRank.low, HandRank.invalid)
+    }
+    
     func testComparable() {
-        let expected:[HandRank] = [.highCard, .pair, .pair]
-        let ranks:[HandRank] = [.pair, .highCard, .pair]
-        XCTAssertEqual(ranks.sorted(), expected)
-
-        let all = HandRank.all()
-        let reverse = Array(all.reversed())
-        XCTAssertNotEqual(reverse, all)
-        XCTAssertEqual(reverse.sorted(), all)
+        XCTAssertLessThan(HandRank.invalid, HandRank.low)
+        XCTAssertLessThan(HandRank.low, HandRank.highCard)
+        XCTAssertLessThan(HandRank.highCard, HandRank.pair)
+        XCTAssertLessThan(HandRank.pair, HandRank.twoPair)
+        XCTAssertLessThan(HandRank.twoPair, HandRank.threeOfKind)
+        XCTAssertLessThan(HandRank.threeOfKind, HandRank.straight)
+        XCTAssertLessThan(HandRank.straight, HandRank.flush)
+        XCTAssertLessThan(HandRank.flush, HandRank.fullHouse)
+        XCTAssertLessThan(HandRank.fullHouse, HandRank.fourOfKind)
+        XCTAssertLessThan(HandRank.fourOfKind, HandRank.straightFlush)
+        XCTAssertLessThan(HandRank.straightFlush, HandRank.fiveOfKind)
     }
-
+    
     func testDescription() {
         XCTAssertEqual(HandRank.invalid.description, "invalid")
         XCTAssertEqual(HandRank.low.description, "low")
